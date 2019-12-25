@@ -1,0 +1,22 @@
+<% include ./partials/header %>
+
+<h1>Lesson erstellen</h1>
+<p>Eine Lesson erstellst du mit einem Namen und Markdown</p>
+
+<form method="post" action="/create-lesson">
+  <div class="form-group">
+    <label for="exampleInputEmail1">Lesson Title</label>
+    <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" name="title">
+    <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+  </div>
+  <div class="form-group" class="editor">
+    <label for="exampleFormControlTextarea1">Course Content</label>
+    <textarea class="form-control" id="exampleFormControlTextarea1" rows="5" name="content"></textarea>
+  </div>
+  <button type="submit" class="btn btn-primary">Senden</button>
+</form>
+
+<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+<script>var simplemde = new SimpleMDE();</script>
+
+<% include ./partials/footer %>
