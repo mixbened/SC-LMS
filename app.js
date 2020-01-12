@@ -210,7 +210,7 @@ app.post('/create-course',verifyTrainer, function(req, res){
 // first delete course and lesson course entry and then create course completely
 app.post('/edit-course/:id',verifyTrainer, function(req, res){
 	var course_id = req.params.id
-	console.log('Change course ' + course_id, req.body)
+	//console.log('Change course ' + course_id, req.body)
 	var title = req.body.title
 	var selected = req.body.selected
 	models.Course.destroy({where: {id: course_id}}).then(del_res => {
@@ -237,7 +237,18 @@ app.get('/logout', function(req, res) {
 })
 
 app.post('/add-students',verifySession, verifyTrainer, function(req, res) {
-	console.log('Change students ', req.body)
+	//console.log('Change students ', req.body)
+	models.Course_User.bulkCreate(req.body.selected).then(d_response => {
+		console.log('Create User ', d_response)
+		res.status(200).json({result: 'success'})
+	}).catch(err => console.log('Error in adding students to course ', err))
+})
+
+app.get('/remove/:course_id/:user_id', function(req, res) {
+	var { course_id, user_id } = req.params
+	models.Course_User.destroy({where: {course_id: course_id, user_id: user_id}}).then(d_response => {
+		res.status(200).json({result: 'success'})
+	}).catch(err => console.log('Error in removing student ', err))
 })
 
 // start web server

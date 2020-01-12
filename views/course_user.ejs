@@ -18,7 +18,7 @@
 				<%= user.username %>
 			</th>
 		    <td class="text-right">
-				<a href="#"><button class="btn btn-danger btn-sm">Entfernen</button></a>
+				<button class="btn btn-danger btn-sm" id="remove-student" value="<%= user.user_id %>">Entfernen</button>
 		    </td>
 		</tr>
   		<% }); %>
@@ -58,6 +58,7 @@
 
 <script>
 var course_title = '<%= course_title %>'
+var course_id = '<%= course_id %>'
 var all_students = []
 var selected = []
 var course_students = <%- JSON.stringify(data) %>;
@@ -73,9 +74,15 @@ $('#add').click(function(){
 $('#add-students').click(function(){
 	$('input:checked').each(function() {
 		var id = parseInt($(this).attr('name'),10)
-		selected.push({user_id: id, title: course_title});
+		selected.push({user_id: id, course_title, course_id});
 	});
-	sendData({selected});
+	addStudents({selected});
+})
+
+// trigger when remove is hit
+$('#remove-student').click(function(id){
+	var id = parseInt($(this).attr('value'),10)
+	removeStudent(id);
 })
 	
 // add students to a course
@@ -85,6 +92,17 @@ function addStudents(data){
 	  method: "POST",
 	  url: "/add-students",
 	  data: data
+	})
+	  .done(function( msg ) {
+		window.location.reload();
+	  });
+}
+
+// remove student by id
+function removeStudent(user_id){
+	$.ajax({
+	  method: "GET",
+	  url: "/remove/" + course_id + "/" + user_id
 	})
 	  .done(function( msg ) {
 		window.location.reload();
