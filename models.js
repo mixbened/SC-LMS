@@ -59,6 +59,18 @@ var Course_User = sequelize.define('course_users', {
 	}
 })
 
+var User_Lesson = sequelize.define('user_lessons', {
+	course_id: {
+		type: Sequelize.INTEGER
+	},
+	user_id: {
+		type: Sequelize.INTEGER
+	},
+	lesson_id: {
+		type: Sequelize.STRING
+	}
+})
+
 
 // export for app.js
 exports.User = User
@@ -66,4 +78,5 @@ exports.Lesson = Lesson
 exports.Course = Course
 exports.Course_Lesson = Course_Lesson
 exports.Course_User = Course_User
+exports.User_Lesson = User_Lesson
 exports.sequelize = sequelize

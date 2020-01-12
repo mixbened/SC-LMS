@@ -12,17 +12,57 @@
 	  </thead>
 	  <tbody>
 		<% lessons.forEach(function(lesson){ %>
-		<tr>
-			<th scope="row">
-				<%= lesson.lesson_title %>
-			</th>
-			<td class="text-right">
-				<a href="/lesson/<%= lesson.lesson_id %>"><button class="btn btn-warning btn-sm">Anzeigen</button></a>
-			</td>
-		</tr>
+			<% if(lesson.check) { %>
+				<tr class="bg-green">
+					<td scope="row">
+						<%= lesson.lesson_title %>
+					</td>
+					<td class="text-right">
+						<a href="/lesson/<%= lesson.lesson_id %>"><button class="btn btn-warning btn-sm">Anzeigen</button></a>
+						<button class="btn btn-dark btn-sm check-lesson" value="<%= lesson.lesson_id %>">Check</button>
+					</td>
+				</tr>
+			<% } else { %>
+				<tr>
+					<td scope="row">
+						<%= lesson.lesson_title %>
+					</td>
+					<td class="text-right">
+						<a href="/lesson/<%= lesson.lesson_id %>"><button class="btn btn-warning btn-sm">Anzeigen</button></a>
+						<button id="check-lesson" class="btn btn-dark btn-sm check-lesson" value="<%= lesson.lesson_id %>">Check</button>
+					</td>
+				</tr>
+			<% } %>
   		<% }); %>
 	  </tbody>
   </table>
 </div>
+
+<script>
+var course_title = '<%= title %>'
+var course_id = '<%= course_id %>'
+
+
+// trigger when check is hit
+$('.check-lesson').click(function(){
+	console.log('Check button')
+	var lesson_id = parseInt($(this).attr('value'),10)
+	checkStudent({course_id, lesson_id})
+})
+
+// checks lesson for user
+function checkStudent(data){
+	console.log('Lets check ', data)
+	$.ajax({
+	  method: "POST",
+	  url: "/check-lesson",
+	  data: data
+	})
+	  .done(function( msg ) {	
+		console.log('response ', msg)
+		window.location.reload();
+	  });
+}
+</script>
 
 <% include ./partials/footer %>

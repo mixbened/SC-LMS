@@ -86,16 +86,29 @@ app.get('/lesson/:id', verifySession, (req, res) => {
   });
 
 app.get('/course/:id', verifySession, (req, res) => {
-	// console.log('Searching for Course ', req.params.id)
-	models.Course.findOne({attributes: ['id', 'title'], where: {id: req.params.id}}).then(response => {
+	var user_id = req.session.user_id
+	var course_id = req.params.id
+	// find course by course url
+	models.Course.findOne({attributes: ['id', 'title'], where: {id: course_id}}).then(response => {
 		var course = response.dataValues
 		var title = course.title
-		var id = course.id
-		models.Course_Lesson.findAll({attributes: ['lesson_id','course_id', 'lesson_title'], where: {course_id: id}}).then(response => {
-			var lessons = response.map(lesson => {
-				return lesson.dataValues;
+		var course_id = course.id
+		// find all lessons for the course
+		models.Course_Lesson.findAll({attributes: ['lesson_id','course_id', 'lesson_title'], where: {course_id}}).then(response => {
+			// find finished lessons
+			models.User_Lesson.findAll({attributes: ['lesson_id'], where: {course_id, user_id}}).then(d_response => {
+				var ids = d_response.map(item => item.dataValues.lesson_id)
+				var lessons = response.map(lesson => {
+					var check = ids.indexOf(lesson.dataValues.lesson_id)
+					//console.log('current check ', ids, lesson.dataValues, check)
+					if(check >= 0) {
+						lesson.dataValues.check = true
+					}
+					return lesson.dataValues;
+				})
+				//console.log(lessons)
+				res.render('course.ejs', {logged: true, title, lessons, course_id})
 			})
-			res.render('course.ejs', {logged: true, title: title, lessons: lessons})
 		}).catch(err => console.log('Error ', err))
 	}).catch(err => console.log('error ', err))
   });
@@ -143,11 +156,14 @@ app.post('/register', function(req, res){
 	var password = req.body.password
 	var trainer = false
     var hashedPassword = passwordHash.generate(password);
-	console.log('Register', username, hashedPassword)
+	//console.log('Register', username, hashedPassword)
 	models.User.create({username: username, password: hashedPassword, trainer: trainer}).then(result => {
-		console.log('response', res)
+		//console.log('response', res)
 		res.redirect('/login')
-	}).catch(err => console.log('Error', err))
+	}).catch(err => {
+		console.log('Error', err)
+		res.redirect('/register')
+	})
 })
 
 app.get('/all-students/:title', function(req, res) {
@@ -234,6 +250,25 @@ app.post('/edit-course/:id',verifyTrainer, function(req, res){
 app.get('/logout', function(req, res) {
 	req.session.destroy()
 	res.redirect('/login')
+})
+
+app.post('/check-lesson', function(req, res){
+	var user_id = req.session.user_id
+	var { course_id, lesson_id } = req.body
+	models.User_Lesson.findAll({where: {course_id, user_id, lesson_id}}).then(d_response => {
+		var result = d_response[0]
+		if(result){
+			// remove
+			models.User_Lesson.destroy({where: {course_id, user_id, lesson_id}}).then(response => {
+				res.status(200).json({result: 'removed'})
+			})
+		} else {
+			// add
+			models.User_Lesson.create({course_id, user_id, lesson_id}).then(response => {
+				res.status(200).json({result: 'added'})
+			})
+		}
+	})
 })
 
 app.post('/add-students',verifySession, verifyTrainer, function(req, res) {
