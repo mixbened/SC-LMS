@@ -1,0 +1,117 @@
+<% include ./partials/header %>
+
+<h1>Teilnehmer <%= course_title %></h1>
+<p>Du siehst hier, welche Teilnehmer Zugriff auf diesen Kurs haben. Füge Teilnehmer hinzu oder entferne sie vom Kurs.</p>
+<button id="add" class="btn btn-success" data-toggle="modal" data-target="#exampleModalCenter">Teilnehmer hinzufügen</button>
+<div class="table-responsive-sm my-3">
+  <table class="table">
+	  <thead>
+		<tr>
+		  <th scope="col">Username</th>
+		  <th scope="col" class="text-right">Aktion</th>
+		</tr>
+	  </thead>
+	  <tbody>
+		<% data.forEach(function(user){ %>
+		<tr>
+			<th scope="row">
+				<%= user.username %>
+			</th>
+		    <td class="text-right">
+				<a href="#"><button class="btn btn-danger btn-sm">Entfernen</button></a>
+		    </td>
+		</tr>
+  		<% }); %>
+	  </tbody>
+  </table>
+</div>
+
+<!-- modal -->
+<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalCenterTitle">Teilnehmer hinzufügen</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+	  <table class="table">
+		  <thead>
+			<tr>
+			  <th scope="col">User</th>
+			  <th scope="col">Hinzufügen</th>
+			</tr>
+		  </thead>
+		  <tbody id="select">
+		  </tbody>
+	  </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Zurück</button>
+        <button type="button" class="btn btn-success" id="add-students">Sichern</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var course_title = '<%= course_title %>'
+var all_students = []
+var selected = []
+var course_students = <%- JSON.stringify(data) %>;
+
+// trigger when modal opens
+$('#add').click(function(){
+	selected = []
+	getStudents();
+	//console.log(course_title, selected)
+})
+
+// trigger when save is hit
+$('#add-students').click(function(){
+	$('input:checked').each(function() {
+		var id = parseInt($(this).attr('name'),10)
+		selected.push({user_id: id, title: course_title});
+	});
+	sendData({selected});
+})
+	
+// add students to a course
+// function needs new student array and course title/id
+function addStudents(data){
+	$.ajax({
+	  method: "POST",
+	  url: "/add-students",
+	  data: data
+	})
+	  .done(function( msg ) {
+		window.location.reload();
+	  });
+}
+	
+// makes AJAX request and receives all students from the db. Then compares all to the ones, that were loaded with the course 
+// only those which are not  loaded are not in the course. It is only able to add them
+function getStudents(){
+	$.ajax({
+	  method: "GET",
+	  url: "/all-students/" + course_title
+	})
+	  .done(function( msg ) {
+		all_students = msg;
+		//console.log('All students ', msg)
+		var all_filtered_students = all_students.filter(student => {
+			//console.log('filter student')
+			var i = course_students.find(stud => stud.username === student.username)
+			//console.log('find in course students ', i)
+			if(!i) return true
+		})
+		all_filtered_students.forEach(el => {
+			$('#select').append($('<tr></tr>').html('<td>' + el.username + '</td><td><input type="checkbox" name="'+ el.id +'"></td>'))
+		})
+	  });
+}
+</script>
+
+<% include ./partials/footer %>
