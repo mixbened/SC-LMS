@@ -1,0 +1,29 @@
+<% include ./partials/header %>
+
+<h1>Alle Kurse</h1>
+
+<div class="table-responsive-sm my-5">
+  <table class="table">
+	  <thead>
+		<tr>
+		  <th scope="col">Kurse</th>
+		  <th scope="col" class="text-right">Aktion</th>
+		</tr>
+	  </thead>
+	  <tbody>
+		<% courses.forEach(function(course){ %>
+		<tr>
+			<td scope="row">
+				<%= course.title %>
+			</td>
+			<td class="text-right">
+				<a href="/course/<%= course.id %>"><button class="btn btn-dark btn-sm">Anzeigen</button></a>
+				<a href="/course/edit/<%= course.id %>"><button class="btn btn-warning btn-sm">Bearbeiten</button></a>
+			</td>
+		</tr>
+  		<% }); %>
+	  </tbody>
+  </table>
+</div>
+
+<% include ./partials/footer %>

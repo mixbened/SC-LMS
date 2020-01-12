@@ -1,0 +1,65 @@
+<% include ./partials/header %>
+
+<h1>Kurs Erstellen</h1>
+<p>Einen Kurs erstellst du mit einem Namen und einer Auswahl an Lessons</p>
+<div class="form-group">
+	<label for="exampleInputEmail1">Kurstitel</label>
+	<small>Du kannst hier den Title ändern, Lessons entfernen oder Lessons hinzufügen</small>
+	<input type="text" class="form-control" id="title" aria-describedby="emailHelp" name="title" value="<%= title %>">
+</div>
+<div class="table-responsive-sm">
+  <table class="table">
+	  <thead>
+		<tr>
+		  <th scope="col">Lesson</th>
+		  <th scope="col">Hinzufügen</th>
+		</tr>
+	  </thead>
+	  <tbody>
+		<% lessons.forEach(function(lesson){ %>
+		<tr>
+			<th scope="row">
+				<%= lesson.title %>
+			</th>
+		    <td>
+				<% if(lesson.match){ %>
+				<input type="checkbox" name="<%= lesson.id %>" lesson="<%= lesson.title %>" checked>
+				<% } else { %>
+				<input type="checkbox" name="<%= lesson.id %>" lesson="<%= lesson.title %>">
+				<% } %>
+		    </td>
+		</tr>
+  		<% }); %>
+	  </tbody>
+  </table>
+</div>
+<button id="send" class="btn btn-primary">Kurs ändern</button>
+
+<script>
+var initial_title = <%= title %> 
+	
+$('#send').click(function(){
+	var selected = [];
+	$('input:checked').each(function() {
+		var id = parseInt($(this).attr('name'),10)
+		var title = $(this).attr('lesson')
+		selected.push({id: id, title: title});
+	});
+	var title = $('#title').val()
+	if(initial_title === title) title = null
+	console.log(title, selected)
+	sendData({title: title, selected: selected})
+})
+function sendData(data){
+	$.ajax({
+	  method: "POST",
+	  url: "/edit-course/" + <%= id %>,
+	  data: data
+	})
+	  .done(function( msg ) {
+		window.location = "/trainer";
+	  });
+}
+</script>
+
+<% include ./partials/footer %>
