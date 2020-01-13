@@ -1,0 +1,38 @@
+<% include ./partials/header %>
+
+<h1>All Lessons</h1>
+
+<div class="table-responsive-sm my-5">
+  <table class="table">
+	  <thead>
+		<tr>
+		  <th scope="col">Lesson</th>
+		  <th scope="col" class="text-right"></th>
+		</tr>
+	  </thead>
+	  <tbody>
+		<% lessons.forEach(function(lesson){ %>
+		<tr>
+			<td scope="row">
+				<%= lesson.title %>
+			</td>
+			<td class="text-right">
+				<div class="btn-group" role="group">
+				  <div class="btn-group" role="group">
+					<button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					  Actions
+					</button>
+					<div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+						<a class="dropdown-item" role="button" href="/lesson/<%= lesson.id %>">Show</a>
+						<a class="dropdown-item" href="/lesson/edit/<%= lesson.id %>">Edit</a>
+					</div>
+				  </div>
+				</div>
+			</td>
+		</tr>
+  		<% }); %>
+	  </tbody>
+  </table>
+</div>
+
+<% include ./partials/footer %>

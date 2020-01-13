@@ -46,6 +46,10 @@ app.get('/login', (req, res) => {
     res.render('login.ejs', {logged: false});
   });
 
+app.get('/help', function(req, res){
+	res.render('help.ejs', {logged: false})
+})
+
 app.get('/trainer', verifySession, verifyTrainer, (req, res) => {
     res.render('trainer.ejs', {logged: true});
 });
@@ -69,6 +73,15 @@ app.get('/courses', verifyTrainer, (req, res) => {
 			return course.dataValues
 		})
 		res.render('courses.ejs', {logged: true, courses: courses});
+	}).catch(err => console.log('error ', err))
+});
+
+app.get('/lessons', verifyTrainer, (req, res) => {
+	models.Lesson.findAll({attributes: ['id', 'title']}).then(response => {
+		var lessons = response.map(lesson => {
+			return lesson.dataValues
+		})
+		res.render('lessons.ejs', {logged: true, lessons});
 	}).catch(err => console.log('error ', err))
 });
 
@@ -139,6 +152,13 @@ app.get('/course/edit/:id', verifySession, verifyTrainer, (req, res) => {
 	}).catch(err => console.log('error ', err))
   });
 
+  app.get('/lesson/edit/:id', verifySession, verifyTrainer, (req, res) => {
+	models.Lesson.findOne({attributes: ['id', 'title', 'content'], where: {id: req.params.id}}).then(response => {
+		var lesson = response.dataValues
+		res.render('edit_lesson.ejs', {logged: true, title: lesson.title, content: lesson.content, id: lesson.id})
+	}).catch(err => console.log('error ', err))
+  });
+
 app.get('/course/students/:title/:id',verifySession, verifyTrainer, function(req,res){
 	var course_title = req.params.title
 	var course_id = req.params.id
@@ -199,6 +219,14 @@ app.post('/create-lesson',verifyTrainer, function(req, res){
 	var title = req.body.title
 	var content = req.body.content
 	models.Lesson.create({title: title, content: content}).then(response => {
+		res.render('trainer.ejs', {logged: true})
+	}).catch(err => console.log('error ', err))
+})
+
+app.post('/edit-lesson/:id',verifyTrainer, function(req, res){
+	var id = req.params.id
+	var { title,content } = req.body
+	models.Lesson.update({ title, content },{where: {id}}).then(response => {
 		res.render('trainer.ejs', {logged: true})
 	}).catch(err => console.log('error ', err))
 })

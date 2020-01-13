@@ -1,0 +1,27 @@
+<% include ./partials/header %>
+
+<h1>Edit Lesson</h1>
+<p>Simply change Lesson Content</p>
+
+<form method="post" action="/edit-lesson/<%= id %>">
+	<div class="form-group">
+		<label for="exampleInputEmail1">Lesson Title</label>
+		<input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" name="title" value="<%= title %>">
+	</div>
+	<div class="form-group" class="editor">
+		<label for="exampleFormControlTextarea1">Lesson Content</label>
+		<textarea class="form-control" id="exampleFormControlTextarea1" rows="5" name="content" value="<%= content %>"></textarea>
+	</div>
+	<button type="submit" class="btn btn-primary">Save</button>
+</form>
+  
+<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+<script>
+var content = $('textarea:first').attr('value')
+var simplemde = new SimpleMDE();
+simplemde.value(content)
+</script>
+
+
+
+<% include ./partials/footer %>

@@ -8,16 +8,17 @@ a {
 }
 
 footer {
-	position: absolute;
+	position: fixed;
 	width: 100%;
 	bottom: 0;
+	z-index: 1;
 }
 
 .Codemirror, .Codemirror-scroll {
 	height: auto;
 	min-height: 200px;
 	max-height: 500px;
-	overflow: hidden;
+	overflow: scroll;
 }
 
 .Codemirror-fullscreen {
@@ -30,6 +31,33 @@ footer {
 
 .bg-green {
 	background-color: rgb(0, 204, 102, 0.3);
+}
+
+.icon {
+	position: absolute;
+	top: -2em;
+	right: 2em;
+	border-radius: 100%;
+	width: 2.5em;
+	height: 2.5em;
+	background: cadetblue;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	box-shadow: 1px 1px 1px 1px #2a3758;
+	color: white;
+	cursor: pointer;
+}
+
+.icon:hover {
+	transform: scale(1.3);
+	transition: 0.5s;
+	color: white;
+	text-decoration: none;
+}
+
+main.container {
+	margin-bottom: 5%;
 }
 
 @media (max-width: 768px){
