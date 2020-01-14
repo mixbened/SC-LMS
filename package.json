@@ -1,6 +1,10 @@
 {
-  "name": "application-name",
-  "version": "0.0.1",
+  "name": "START.CODE",
+  "version": "0.7.0",
+  "description": "This is a Learning Management System for a Coding School. No SaaS",
+  "engines": {
+    "node": "10.14.1"
+  },
   "private": true,
   "scripts": {
     "start": "node app"
