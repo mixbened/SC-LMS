@@ -2,7 +2,7 @@
 var Sequelize = require('sequelize')
 
 // connect to postgres db on heroku - define timestamps makes sure sequelize doesnt change our model
-var sequelize = new Sequelize(process.env.DB_CONNECTION, {define:{timestamps: false}})
+var sequelize = new Sequelize(process.env.DATABASE_URL, {define:{timestamps: false}})
 
 // define models in DB
 var User = sequelize.define('users', {
