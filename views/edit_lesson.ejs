@@ -3,6 +3,15 @@
 <h1>Edit Lesson</h1>
 <p>Simply change Lesson Content</p>
 
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+	<h4 class="alert-heading">Well done!</h4>
+	<hr>
+	<p>You uploaded the image. Copy the URL to include it in the markdown: </p>
+	<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+		<span aria-hidden="true">&times;</span>
+	</button>
+</div>
+
 <form method="post" action="/edit-lesson/<%= id %>">
 	<div class="form-group">
 		<label for="exampleInputEmail1">Lesson Title</label>
@@ -13,6 +22,7 @@
 		<textarea class="form-control" id="exampleFormControlTextarea1" rows="5" name="content" value="<%= content %>"></textarea>
 	</div>
 	<button type="submit" class="btn btn-primary">Save</button>
+	<button type="button" id="upload_widget" class="btn btn-success">Upload Images</button>
 </form>
   
 <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
@@ -21,7 +31,24 @@ var content = $('textarea:first').attr('value')
 var simplemde = new SimpleMDE();
 simplemde.value(content)
 </script>
+<script src="https://widget.cloudinary.com/v2.0/global/all.js" type="text/javascript"></script>
+<script type="text/javascript">   
+$('.alert').hide()
+var myWidget = cloudinary.createUploadWidget({
+  cloudName: 'mixbened', 
+  uploadPreset: 'yh6kgezn'}, (error, result) => { 
+	if (!error && result && result.event === "success") { 
+	  console.log('Done! Here is the image url: ', result.info.url); 
+	  $( ".alert > p" ).append("<b>" + result.info.url + "</b>")
+	  $('.alert').show()
+	}
+  }
+)
 
+document.getElementById("upload_widget").addEventListener("click", function(){
+	myWidget.open();
+  }, false);
+</script>
 
 
 <% include ./partials/footer %>

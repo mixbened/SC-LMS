@@ -5,10 +5,13 @@ var Sequelize = require('sequelize')
 var bodyParser = require('body-parser')
 var models = require('./models')
 var passwordHash = require('password-hash')
+const uuidv1 = require('uuid/v1')
 var session = require('express-session')
 var markdown = require( "markdown" ).markdown
 var verifySession = require( "./middleware" ).verifySession
 var verifyTrainer = require( "./middleware" ).verifyTrainer
+var verifyAdmin = require( "./middleware" ).verifyAdmin
+
 
 
 // initialize express
@@ -52,6 +55,10 @@ app.get('/help', function(req, res){
 
 app.get('/trainer', verifySession, verifyTrainer, (req, res) => {
     res.render('trainer.ejs', {logged: true});
+});
+
+app.get('/admin', verifySession, verifyAdmin, (req, res) => {
+    res.render('admin.ejs', {logged: true});
 });
 
 app.get('/create-lesson', verifyTrainer, (req, res) => {
@@ -174,17 +181,25 @@ app.get('/course/students/:title/:id',verifySession, verifyTrainer, function(req
 app.post('/register', function(req, res){
 	var username = req.body.username
 	var password = req.body.password
+	// admin registration
+	if(!password){
+		var hashedPassword = uuidv1();
+	} else {
+		var hashedPassword = passwordHash.generate(password);
+	}
 	var trainer = false
-    var hashedPassword = passwordHash.generate(password);
 	//console.log('Register', username, hashedPassword)
 	models.User.create({username: username, password: hashedPassword, trainer: trainer}).then(result => {
 		//console.log('response', res)
 		res.redirect('/login')
+		// send notification to user with email and password
+		//...
 	}).catch(err => {
 		console.log('Error', err)
 		res.redirect('/register')
 	})
 })
+
 
 app.get('/all-students/:title', function(req, res) {
 	var title = req.params.title
@@ -220,7 +235,10 @@ app.post('/create-lesson',verifyTrainer, function(req, res){
 	var content = req.body.content
 	models.Lesson.create({title: title, content: content}).then(response => {
 		res.render('trainer.ejs', {logged: true})
-	}).catch(err => console.log('error ', err))
+	}).catch(err => {
+		console.log('Error creating a lesson: ', err)
+		res.render('create_lesson.ejs', {logged: true, error: "An Error occured. Most likely the Lesson Name already exists..."})
+	})
 })
 
 app.post('/edit-lesson/:id',verifyTrainer, function(req, res){
@@ -228,7 +246,10 @@ app.post('/edit-lesson/:id',verifyTrainer, function(req, res){
 	var { title,content } = req.body
 	models.Lesson.update({ title, content },{where: {id}}).then(response => {
 		res.render('trainer.ejs', {logged: true})
-	}).catch(err => console.log('error ', err))
+	}).catch(err => {
+		console.log('Error edit a lesson: ', err)
+		res.render('edit_lesson.ejs', {logged: true, error: "An Error occured. Most likely the Lesson Name already exists..."})
+	})
 })
 
 app.post('/create-course',verifyTrainer, function(req, res){

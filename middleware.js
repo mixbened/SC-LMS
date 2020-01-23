@@ -14,7 +14,18 @@ function verifyTrainer(req, res, next){
 		res.redirect('/')
 	}
 }
+function verifyAdmin(req, res, next){
+	admins = ['ben', 'christine.schluetz@startplatz.de']
+	check = admins.indexOf(req.session.user) >= 0
+	if(check){
+		// console.log('Trainer Verify: ', req.session.trainer)
+		return next()
+	} else {
+		res.redirect('/')
+	}
+}
 
 // export for app.js
 exports.verifySession = verifySession
 exports.verifyTrainer = verifyTrainer
+exports.verifyAdmin = verifyAdmin
