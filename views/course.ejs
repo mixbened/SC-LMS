@@ -1,19 +1,24 @@
 <% include ./partials/header %>
 
+<button class="btn btn-sm btn-outline-info my-2" onclick="window.history.back()">Go Back</button>
 <h1><%= title %></h1>
 
 <div class="table-responsive-sm">
   <table class="table">
 	  <thead>
 		<tr>
+		  <th scope="col">Number</th>
 		  <th scope="col">Lessons</th>
 		  <th class="text-right" scope="col">Aktion</th>
 		</tr>
 	  </thead>
 	  <tbody>
-		<% lessons.forEach(function(lesson){ %>
+		<% lessons.forEach(function(lesson, index){ %>
 			<% if(lesson.check) { %>
 				<tr class="bg-green">
+					<td scope="row">
+						<%= index+1 %>
+					</td>
 					<td scope="row">
 						<%= lesson.lesson_title %>
 					</td>
@@ -24,6 +29,9 @@
 				</tr>
 			<% } else { %>
 				<tr>
+					<td scope="row">
+						<%= index %>
+					</td>
 					<td scope="row">
 						<%= lesson.lesson_title %>
 					</td>

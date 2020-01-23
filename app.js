@@ -11,6 +11,7 @@ var markdown = require( "markdown" ).markdown
 var verifySession = require( "./middleware" ).verifySession
 var verifyTrainer = require( "./middleware" ).verifyTrainer
 var verifyAdmin = require( "./middleware" ).verifyAdmin
+var axios = require('axios')
 
 
 
@@ -58,7 +59,12 @@ app.get('/trainer', verifySession, verifyTrainer, (req, res) => {
 });
 
 app.get('/admin', verifySession, verifyAdmin, (req, res) => {
-    res.render('admin.ejs', {logged: true});
+	models.Course.findAll({attributes: ['id', 'title']}).then(response => {
+		var courses = response.map(course => {
+			return course.dataValues
+		})
+		res.render('admin.ejs', {logged: true, courses});
+	}).catch(err => console.log('error ', err))
 });
 
 app.get('/create-lesson', verifyTrainer, (req, res) => {
@@ -92,9 +98,9 @@ app.get('/lessons', verifyTrainer, (req, res) => {
 	}).catch(err => console.log('error ', err))
 });
 
-app.get('/register', (req, res) => {
-    res.render('register.ejs', {logged: false});
-  });
+// app.get('/register', (req, res) => {
+//     res.render('register.ejs', {logged: false});
+//   });
 
 app.get('/lesson/:id', verifySession, (req, res) => {
 	models.Lesson.findOne({where: {id: req.params.id}}).then(response => {
@@ -115,6 +121,10 @@ app.get('/course/:id', verifySession, (req, res) => {
 		var course_id = course.id
 		// find all lessons for the course
 		models.Course_Lesson.findAll({attributes: ['lesson_id','course_id', 'lesson_title'], where: {course_id}}).then(response => {
+			// break if no lessons for the course
+			if(!response){
+				res.render('course.ejs', {logged: true, title, lessons: [], course_id})
+			}	
 			// find finished lessons
 			models.User_Lesson.findAll({attributes: ['lesson_id'], where: {course_id, user_id}}).then(d_response => {
 				var ids = d_response.map(item => item.dataValues.lesson_id)
@@ -132,6 +142,7 @@ app.get('/course/:id', verifySession, (req, res) => {
 		}).catch(err => console.log('Error ', err))
 	}).catch(err => console.log('error ', err))
   });
+
 
 app.get('/course/edit/:id', verifySession, verifyTrainer, (req, res) => {
 	models.Course.findOne({attributes: ['id', 'title'], where: {id: req.params.id}}).then(response => {
@@ -181,22 +192,33 @@ app.get('/course/students/:title/:id',verifySession, verifyTrainer, function(req
 app.post('/register', function(req, res){
 	var username = req.body.username
 	var password = req.body.password
+	var course = req.body.course
+	var course_id = course.split("-")[0]
+	var course_title = course.split("-")[1]
+	console.log('course user register', course)
 	// admin registration
 	if(!password){
-		var hashedPassword = uuidv1();
+		password = uuidv1().substr(0,8)
+		var hashedPassword = passwordHash.generate(password);
 	} else {
 		var hashedPassword = passwordHash.generate(password);
 	}
 	var trainer = false
-	//console.log('Register', username, hashedPassword)
+	//create user in database
 	models.User.create({username: username, password: hashedPassword, trainer: trainer}).then(result => {
-		//console.log('response', res)
-		res.redirect('/login')
-		// send notification to user with email and password
-		//...
+		models.Course_User.bulkCreate([{user_id: result.id, course_title, course_id}]).then(d_response => {
+			console.log('Create User ', d_response)
+			// send notification to user with email and password
+			axios.post('https://hooks.zapier.com/hooks/catch/1872803/ohag7l8/', {username, password: hashedPassword}).then(response => {
+				res.redirect('/admin')
+			}).catch(err => {
+				console.log('Error in Zapier Call ', err)
+				res.redirect('/admin')
+			})
+		}).catch(err => console.log('Error in adding students to course ', err))
 	}).catch(err => {
-		console.log('Error', err)
-		res.redirect('/register')
+	 	console.log('Error', err)
+		res.redirect('/admin')
 	})
 })
 
@@ -271,28 +293,23 @@ app.post('/create-course',verifyTrainer, function(req, res){
 	}).catch(err => console.log('error ', err))
 })
 
-// this receives a new set equivalent to create course
-// first delete course and lesson course entry and then create course completely
+// TODO: do not destroy Course!
 app.post('/edit-course/:id',verifyTrainer, function(req, res){
 	var course_id = req.params.id
 	//console.log('Change course ' + course_id, req.body)
 	var title = req.body.title
 	var selected = req.body.selected
-	models.Course.destroy({where: {id: course_id}}).then(del_res => {
-		models.Course_Lesson.destroy({where: {course_id: course_id}}).then(response => {
-			// delete complete - now create
-			models.Course.create({title: title}).then(response => {
-				var course_id = response.dataValues.id
-				var records = []
-				selected.forEach(lesson => {
-					var record = {lesson_id: lesson.id,course_id: course_id, lesson_title: lesson.title}
-					records.push(record)
-				})
-				models.Course_Lesson.bulkCreate(records).then(db_response => {
-					res.render('trainer.ejs', {logged: true})
-				}).catch(err => console.log('error ', err))
+	//res.render('trainer.ejs', {logged: true})
+	models.Course_Lesson.destroy({where: {course_id: course_id}}).then(response => {
+		// delete complete - now create
+			var records = []
+			selected.forEach(lesson => {
+				var record = {lesson_id: lesson.id,course_id: course_id, lesson_title: lesson.title}
+				records.push(record)
+			})
+			models.Course_Lesson.bulkCreate(records).then(db_response => {
+				res.render('trainer.ejs', {logged: true})
 			}).catch(err => console.log('error ', err))
-		}).catch(err => console.log('error ', err))
 	}).catch(err => console.log('error ', err))
 })
 

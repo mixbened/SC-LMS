@@ -1,14 +1,27 @@
 <% include ./partials/header %>
 
 <h1>Admin</h1>
-<p>Add Students to the platform</p>
+<p><b>Add Students to the platform</b></p>
 
 <form action="/register" method="POST">
     <div class="form-group w-50">
-      <label for="exampleInputEmail1">Email address</label>
-      <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" name="username">
+      <div class="row">
+        <div class="col">
+          <label for="inputEmail">Email address</label>
+          <input type="text" class="form-control" id="inputEmail" aria-describedby="emailHelp" name="username">
+        </div>
+        <div class="col">
+          <label for="inputCourse">Course</label>
+          <select class="custom-select" id="inputGroupSelect01" name="course">
+            <option selected>Choose...</option>
+            <% courses.forEach(course => { %>
+              <option value="<%= course.id %>-<%= course.title %>"><%= course.title %></option>
+            <% }) %>
+          </select>
+        </div>
+      </div>
     </div>
-    <button type="submit" class="btn btn-primary">Register</button>
+    <button type="submit" class="btn btn-primary">Add</button>
   </form>
 
 <% include ./partials/footer %>
