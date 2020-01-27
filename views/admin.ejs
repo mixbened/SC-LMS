@@ -3,6 +3,16 @@
 <h1>Admin</h1>
 <p><b>Add Students to the platform</b></p>
 
+<% if(locals.error){ %>
+  <div class="alert alert-info alert-dismissible fade show" role="alert">
+    <%= locals.error %>>
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+<% }; %>
+
+<%= locals.error %>
 <form action="/register" method="POST">
     <div class="form-group w-50">
       <div class="row">

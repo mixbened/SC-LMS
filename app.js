@@ -209,16 +209,19 @@ app.post('/register', function(req, res){
 		models.Course_User.bulkCreate([{user_id: result.id, course_title, course_id}]).then(d_response => {
 			console.log('Create User ', d_response)
 			// send notification to user with email and password
-			axios.post('https://hooks.zapier.com/hooks/catch/1872803/ohag7l8/', {username, password: hashedPassword}).then(response => {
+			axios.post('https://hooks.zapier.com/hooks/catch/1872803/ohag7l8/', {username, password}).then(response => {
 				res.redirect('/admin')
 			}).catch(err => {
 				console.log('Error in Zapier Call ', err)
 				res.redirect('/admin')
 			})
-		}).catch(err => console.log('Error in adding students to course ', err))
+		}).catch(err => {
+			console.log('Error in adding students to course ', err)
+			res.render('error.ejs', {error: "Sorry, an Error occured. Please try again later", logged: true})
+		})
 	}).catch(err => {
 	 	console.log('Error', err)
-		res.redirect('/admin')
+		 res.render('error.ejs', {error: "We think this user already exists...", logged: true})
 	})
 })
 
