@@ -60,6 +60,10 @@ main.container {
 	margin-bottom: 5%;
 }
 
+img {
+	max-width: 100%;
+}
+
 @media (max-width: 768px){
 	.card {
 		margin-top: 1em;
