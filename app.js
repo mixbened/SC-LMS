@@ -36,11 +36,6 @@ app.use(session({
 app.use(express.static('public'))
 
 
-app.get('*', function(req, res) { 
-		res.redirect('https://' + req.headers.host + req.url);
-})
-
-
 // PAGES
 app.get('/', verifySession, function(req, res){
 	username = req.session.user
