@@ -35,11 +35,9 @@ app.use(session({
 // serve stylesheets, media and js
 app.use(express.static('public'))
 
-app.get('*', function(req, res) {  
-    res.redirect('https://' + req.headers.host + req.url);
 
-    // Or, if you don't want to automatically detect the domain name from the request header, you can hard code it:
-    // res.redirect('https://example.com' + req.url);
+app.get('*', function(req, res) { 
+		res.redirect('https://' + req.headers.host + req.url);
 })
 
 
@@ -373,5 +371,5 @@ app.get('/admin/users',verifyAdmin, function(req, res) {
 
 // start web server
 app.listen(process.env.PORT, function(){
-	console.log('Web Server started', process.env.PORT)
+	console.log('Web Server started', process.env.PORT, process.env.NODE_ENV)
 })
