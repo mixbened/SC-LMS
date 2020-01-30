@@ -36,8 +36,8 @@
 						<%= lesson.lesson_title %>
 					</td>
 					<td class="text-right">
-						<a href="/lesson/<%= lesson.lesson_id %>"><button class="btn btn-warning btn-sm">Anzeigen</button></a>
-						<button id="check-lesson" class="btn btn-dark btn-sm check-lesson" value="<%= lesson.lesson_id %>">Check</button>
+						<a href="/lesson/<%= lesson.lesson_id %>"><button class="btn btn-warning btn-sm"> <i class="fas fa-book"></i> Anzeigen</button></a>
+						<button id="check-lesson" class="btn btn-dark btn-sm check-lesson" value="<%= lesson.lesson_id %>"> <i class="fas fa-check-circle"></i> Check</button>
 					</td>
 				</tr>
 			<% } %>

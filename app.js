@@ -35,6 +35,13 @@ app.use(session({
 // serve stylesheets, media and js
 app.use(express.static('public'))
 
+app.get('*', function(req, res) {  
+    res.redirect('https://' + req.headers.host + req.url);
+
+    // Or, if you don't want to automatically detect the domain name from the request header, you can hard code it:
+    // res.redirect('https://example.com' + req.url);
+})
+
 
 // PAGES
 app.get('/', verifySession, function(req, res){
@@ -353,6 +360,15 @@ app.get('/remove/:course_id/:user_id', function(req, res) {
 	models.Course_User.destroy({where: {course_id: course_id, user_id: user_id}}).then(d_response => {
 		res.status(200).json({result: 'success'})
 	}).catch(err => console.log('Error in removing student ', err))
+})
+
+app.get('/admin/users',verifyAdmin, function(req, res) {
+	models.User.findAll({attributes: ['id', 'username']}).then(response => {
+		var users = response.map(user => {
+			return user.dataValues
+		})
+		res.render('users.ejs', {users, logged: true})
+	}).catch(err => console.log('Error ins retrieving users...', err))
 })
 
 // start web server
